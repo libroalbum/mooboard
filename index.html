@@ -611,12 +611,11 @@
 
         function saveBoard() {
             document.querySelectorAll('.board-item').forEach(i => i.classList.remove('selected'));
-            // AJUSTE: YA NO OCULTAMOS NADA (ni toolbar, ni character)
-            
-            // Capturamos document.body para incluir TODO lo visible en pantalla
+            // AJUSTE: Activado useCORS para que html2canvas pueda cargar imágenes externas (como el personaje)
             html2canvas(document.body, {
                 scale: 2, 
-                backgroundColor: null 
+                backgroundColor: null,
+                useCORS: true 
             }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = 'mi-moodboard-magico.png';
