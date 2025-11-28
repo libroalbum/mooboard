@@ -171,6 +171,7 @@
             outline: none; background: rgba(255,255,255,0.7); padding: 15px;
             border: 2px dashed #ccc;
             border-radius: 10px; min-width: 150px; text-align: center; cursor: text; user-select: text;
+            pointer-events: auto; /* Permitir clic para editar */
         }
         .board-item.selected .text-content { border-color: var(--mat-blue); background: white; }
 
@@ -179,7 +180,7 @@
             width: 30px; height: 30px; border-radius: 50%; position: absolute;
             display: none; align-items: center; justify-content: center;
             font-size: 1rem; color: white; border: 2px solid white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3); cursor: pointer; z-index: 10;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3); cursor: pointer; z-index: 2000;
         }
 
         .board-item.selected .handle-btn { display: flex; }
@@ -187,7 +188,7 @@
         .delete-handle { background: #ff5252; top: -15px; left: -15px; }
         .resize-handle { background: var(--mat-blue); top: -15px; right: -15px; cursor: nwse-resize; }
         .rotate-handle {
-            background: var(--mat-yellow); color: #333; top: -25px; left: 50%;
+            background: var(--mat-yellow); color: #333; top: -30px; left: 50%;
             transform: translateX(-50%); cursor: grab;
         }
         .rotate-handle:active { cursor: grabbing; }
@@ -254,7 +255,7 @@
             height: 60vmin; 
             max-height: 675px; 
             z-index: 4000; 
-            pointer-events: none; 
+            pointer-events: none; /* Importante: permite clicks a través */
             filter: drop-shadow(5px 5px 10px rgba(0,0,0,0.3));
             transition: transform 0.3s;
         }
@@ -281,7 +282,7 @@
     <div class="intro-overlay" id="introOverlay">
         <div class="intro-modal">
             <div class="intro-character-circle">
-                <img src="https://github.com/libroalbum/libro-lbum-pedag-gico/blob/main/images/personaje%20derecha.png?raw=true" class="intro-character-img" alt="Guía">
+                <img src="https://raw.githubusercontent.com/libroalbum/libro-lbum-pedag-gico/main/images/personaje%20derecha.png" class="intro-character-img" alt="Guía">
             </div>
             <h2 class="intro-title">¡Bienvenido a tu Moodboard!</h2>
             <p class="intro-text">
@@ -293,8 +294,8 @@
         </div>
     </div>
 
-    <!-- PERSONAJE EN ESQUINA -->
-    <img src="https://github.com/libroalbum/mooboard/blob/main/personaje%20completo.PNG?raw=true" class="corner-character" alt="Personaje">
+    <!-- PERSONAJE EN ESQUINA (URL Directa RAW para mejor soporte) -->
+    <img id="char-img" src="https://raw.githubusercontent.com/libroalbum/mooboard/main/personaje%20completo.PNG" class="corner-character" alt="Personaje" crossorigin="anonymous">
 
     <!-- GUÍAS -->
     <div id="guide-overlay">
@@ -314,10 +315,9 @@
             <h1 id="mat-title">MOOD BOARD</h1>
         </div>
         
-        <!-- ZONA DE DIBUJO CON TEXTO DE FONDO -->
+        <!-- ZONA DE DIBUJO -->
         <div id="canvas-area" onclick="deselectAll(event)">
             <p id="instruction-text">Copia y pega aquí los recursos que necesites para crear tu tablero de ideas</p>
-            <!-- Los elementos se agregan aquí dinámicamente -->
         </div>
 
         <div id="toolbar">
@@ -340,6 +340,8 @@
     <script>
         const canvas = document.getElementById('canvas-area');
         let zIndexCounter = 100;
+
+        // --- SE ELIMINÓ LA FUNCIÓN addInitialContent() PARA DEJAR EL TABLERO LIMPIO ---
 
         function addText() {
             const el = createBoardElement('text');
@@ -393,26 +395,55 @@
             if (type === 'text') {
                 div.classList.add('text-item');
                 const p = document.createElement('div');
-                p.contentEditable = true;
+                p.contentEditable = false; // Inicio NO editable
                 p.className = 'text-content';
-                p.innerText = "¡Idea genial!";
-                p.onmousedown = (e) => e.stopPropagation();
-                p.ontouchstart = (e) => e.stopPropagation();
+                p.innerText = "¡Doble clic para editar!";
+                
+                // Eventos de edición para el Texto
+                div.ondblclick = (e) => {
+                    e.stopPropagation();
+                    p.contentEditable = true;
+                    p.focus();
+                    document.execCommand('selectAll', false, null);
+                    // Desactivar arrastre del padre mientras se edita
+                    div.draggable = false;
+                };
+
+                p.onblur = () => {
+                    p.contentEditable = false;
+                    window.getSelection().removeAllRanges();
+                };
+
+                // Evitar que el clic en el texto propague y cause conflictos si no es para editar
+                p.onmousedown = (e) => {
+                    // Si ya está editando, no hacer nada (dejar editar)
+                    if (p.isContentEditable) {
+                        e.stopPropagation(); 
+                    }
+                    // Si no está editando, el evento subirá al div y activará el arrastre
+                };
+
                 div.appendChild(p);
                 addControls(div);
             }
 
+            // Manejador de Arrastre Unificado
             div.onmousedown = (e) => {
-                if (!e.target.classList.contains('handle-btn') && !e.target.closest('.handle-btn')) {
-                    selectElement(div);
-                    startDrag(e, div);
-                }
+                // Si es texto y está editando, no hacer nada
+                if (type === 'text' && div.querySelector('.text-content').isContentEditable) return;
+
+                // Si se toca un control, no hacer nada
+                if (e.target.classList.contains('handle-btn') || e.target.closest('.handle-btn')) return;
+
+                selectElement(div);
+                startDrag(e, div);
             };
+
             div.ontouchstart = (e) => {
-                if (!e.target.classList.contains('handle-btn') && !e.target.closest('.handle-btn')) {
-                    selectElement(div);
-                    startDrag(e, div);
-                }
+                if (type === 'text' && div.querySelector('.text-content').isContentEditable) return;
+                if (e.target.classList.contains('handle-btn') || e.target.closest('.handle-btn')) return;
+                selectElement(div);
+                startDrag(e, div);
             }
             return div;
         }
@@ -481,7 +512,6 @@
             startX = clientX; 
             startWidth = parseInt(document.defaultView.getComputedStyle(el).width, 10);
             startHeight = parseInt(document.defaultView.getComputedStyle(el).height, 10);
-            
             const aspectRatio = startWidth / startHeight;
 
             const moveResize = (ev) => {
@@ -565,7 +595,6 @@
             { id: 'btn-text', title: 'Añadir Texto', text: 'Haz clic aquí para escribir tus ideas, notas o frases.' },
             { id: 'btn-image', title: 'Añadir Imagen', text: 'Sube una imagen o usa Ctrl+V para pegar una desde Google.' },
             { id: 'btn-clear', title: 'Limpiar', text: 'Borra todo el tablero para empezar de cero.' },
-            // GUÍA ACTUALIZADA:
             { id: 'btn-save', title: 'Guardar', text: 'Descarga aquí tu imagen y no olvides compartirsela después a tu profesor.' }
         ];
 
@@ -611,17 +640,21 @@
 
         function saveBoard() {
             document.querySelectorAll('.board-item').forEach(i => i.classList.remove('selected'));
-            // AJUSTE: Activado useCORS para que html2canvas pueda cargar imágenes externas (como el personaje)
+            
             html2canvas(document.body, {
                 scale: 2, 
                 backgroundColor: null,
-                useCORS: true 
+                useCORS: true, // IMPORTANTE: Para cargar la imagen del personaje
+                allowTaint: true // Respaldo
             }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = 'mi-moodboard-magico.png';
                 link.href = canvas.toDataURL();
                 link.click();
                 showToast("¡Imagen guardada!");
+            }).catch(err => {
+                console.error("Error al guardar:", err);
+                alert("Hubo un error al guardar la imagen. Intenta de nuevo.");
             });
         }
 
