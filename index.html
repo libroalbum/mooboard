@@ -7,7 +7,11 @@
     
     <!-- Fuentes -->
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Cinzel:wght@700&family=Lato:wght@400;700&family=Permanent+Marker&family=Bangers&display=swap" rel="stylesheet">
+    
+    <!-- Librería de Iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Librería para guardar imagen -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
@@ -29,7 +33,7 @@
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
             font-family: 'Fredoka', sans-serif;
-            background-color: #333; /* Fondo de seguridad */
+            background-color: #333; 
             overflow: hidden; 
         }
 
@@ -42,22 +46,20 @@
             /* Marco de colores perimetral */
             background-image: 
                 linear-gradient(90deg, var(--mat-red) 25%, var(--mat-yellow) 25%, var(--mat-yellow) 50%, var(--mat-blue) 50%, var(--mat-blue) 75%, var(--mat-green) 75%);
-            background-size: 100px 100%; /* Franjas verticales para los lados */
+            background-size: 100px 100%; 
             
-            /* Usamos flex para organizar Header - Canvas - Toolbar */
             display: flex; flex-direction: column;
-            /* AJUSTE: Padding duplicado a 60px para bordes más anchos */
+            /* Padding grueso para el borde */
             padding: 60px; 
-            padding-top: 0; /* El header maneja la parte superior */
+            padding-top: 0; 
         }
 
         /* --- ENCABEZADO (HEADER) ROJO --- */
         #mat-header {
             background-color: var(--mat-red);
-            /* AJUSTE: Compensar el nuevo padding de 60px */
             width: calc(100% + 120px); 
             margin-left: -60px; 
-            height: 80px; /* Altura visual similar al nuevo borde lateral */
+            height: 80px; 
             display: flex; align-items: center; justify-content: center;
             border-bottom: 5px solid rgba(0,0,0,0.1);
             position: relative;
@@ -66,7 +68,7 @@
         }
 
         #mat-title {
-            font-family: 'Bangers', cursive; /* Fuente estilo cómic/juguete */
+            font-family: 'Bangers', cursive; 
             font-size: 3rem;
             color: #fff;
             text-shadow: 2px 2px 0px #333, 4px 4px 0px rgba(0,0,0,0.2);
@@ -75,15 +77,14 @@
 
         /* --- ZONA BLANCA DE DIBUJO --- */
         #canvas-area {
-            flex-grow: 1; /* Ocupar todo el espacio restante */
+            flex-grow: 1; 
             width: 100%;
             background-color: white;
-            border-radius: 0 0 15px 15px; /* Redondear abajo */
+            border-radius: 0 0 15px 15px; 
             box-shadow: inset 0 0 20px rgba(0,0,0,0.15);
             position: relative;
             z-index: 2;
             overflow: hidden;
-            /* Textura sutil */
             background-image: radial-gradient(#ddd 1px, transparent 1px);
             background-size: 25px 25px;
         }
@@ -100,14 +101,12 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.3);
             display: flex; gap: 15px; z-index: 5000;
             border: 3px solid var(--rim-color);
-            transition: z-index 0.3s; /* Transición suave para el z-index */
+            transition: z-index 0.3s;
         }
         
-        /* AJUSTE: Clase para elevar el toolbar cuando un hijo está resaltado */
         #toolbar.highlight-parent {
              z-index: 6002 !important;
         }
-
 
         .tool-btn {
             background: none; border: none;
@@ -123,11 +122,10 @@
             box-shadow: 0 3px 5px rgba(0,0,0,0.15);
         }
 
-        .tool-btn span { font-size: 0.7rem; font-weight: 700; display: none; /* Ocultar texto para limpieza, tooltip lo explica */ }
+        .tool-btn span { font-size: 0.7rem; font-weight: 700; display: none; }
 
         .tool-btn:hover i { transform: translateY(-5px) scale(1.1); color: white; }
         
-        /* Colores de herramientas */
         #btn-text:hover i { background: var(--mat-red); }
         #btn-image:hover i { background: var(--mat-blue); }
         #btn-clear:hover i { background: #ff5252; }
@@ -137,13 +135,12 @@
         .board-item {
             position: absolute; display: inline-block; cursor: grab;
             transition: box-shadow 0.2s; transform-origin: center center;
-            background: white; padding: 10px 10px 10px 10px;
+            background: white; padding: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2); border-radius: 4px;
             min-width: 100px; min-height: 100px;
             border: 1px solid #eee;
         }
         .board-item:active { cursor: grabbing; }
-        /* Estado Seleccionado */
         .board-item.selected { 
             box-shadow: 0 0 0 3px var(--mat-blue), 0 15px 40px rgba(0,0,0,0.3); 
             z-index: 1000 !important; 
@@ -151,7 +148,6 @@
         
         .board-item img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; display: block; }
         
-        /* Texto */
         .board-item.text-item { background: transparent; padding: 5px; box-shadow: none; border: none; }
         .text-content {
             font-family: 'Permanent Marker', cursive; font-size: 1.5rem; color: #333;
@@ -161,38 +157,23 @@
         }
         .board-item.selected .text-content { border-color: var(--mat-blue); background: white; }
 
-        /* CONTROLES DE EDICIÓN (Flecha y X) */
-        .resize-handle {
-            width: 25px; height: 25px; 
-            background: var(--mat-blue); 
-            border-radius: 50%;
-            position: absolute; bottom: -10px; right: -10px; 
-            cursor: nwse-resize; display: none; 
-            border: 3px solid white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            /* Icono de flechas */
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white' width='14px' height='14px'%3E%3Cpath d='M15 5l-1.41 1.41L18.17 11H8v2h10.17l-4.58 4.59L15 19l7-7-7-7z' transform='rotate(45 12 12)'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: center;
-        }
-        
-        .delete-handle {
-            width: 25px; height: 25px; 
-            background: #ff5252; 
-            color: white; 
-            border-radius: 50%;
-            position: absolute; top: -10px; right: -10px; 
-            cursor: pointer; display: none;
-            align-items: center; justify-content: center; 
-            font-size: 0.9rem; 
-            border: 3px solid white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        /* CONTROLES DE EDICIÓN */
+        .handle-btn {
+            width: 30px; height: 30px; border-radius: 50%; position: absolute;
+            display: none; align-items: center; justify-content: center;
+            font-size: 1rem; color: white; border: 2px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3); cursor: pointer; z-index: 10;
         }
 
-        /* Mostrar controles al seleccionar */
-        .board-item.selected .resize-handle, 
-        .board-item.selected .delete-handle { display: flex; }
+        .board-item.selected .handle-btn { display: flex; }
 
+        .delete-handle { background: #ff5252; top: -15px; left: -15px; }
+        .resize-handle { background: var(--mat-blue); top: -15px; right: -15px; cursor: nwse-resize; }
+        .rotate-handle {
+            background: var(--mat-yellow); color: #333; top: -25px; left: 50%;
+            transform: translateX(-50%); cursor: grab;
+        }
+        .rotate-handle:active { cursor: grabbing; }
 
         /* --- BIENVENIDA Y GUÍAS --- */
         .intro-overlay {
@@ -209,16 +190,11 @@
             position: relative;
         }
         
-        /* Círculo del Personaje (Recuperado) */
         .intro-character-circle {
-            width: 120px; height: 120px; 
-            background: var(--endpaper-bg); 
-            border-radius: 50%;
-            margin: -70px auto 20px auto; 
-            border: 5px solid #fff;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
-            overflow: hidden;
-            display: flex; align-items: flex-end; justify-content: center;
+            width: 120px; height: 120px; background: var(--endpaper-bg); 
+            border-radius: 50%; margin: -70px auto 20px auto; 
+            border: 5px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
+            overflow: hidden; display: flex; align-items: flex-end; justify-content: center;
         }
         .intro-character-img { width: 80%; height: auto; }
 
@@ -231,19 +207,16 @@
         }
         .action-btn:hover { transform: scale(1.05); background: var(--rim-color); color: #333; }
 
-        /* Guías (Fondo desenfocado) */
+        /* Guías */
         #guide-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); 
-            backdrop-filter: blur(4px); /* Efecto de desenfoque */
-            z-index: 6000; display: none;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 6000; display: none;
         }
         .guide-bubble {
             position: absolute; background: white; padding: 20px; width: 280px;
             border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 6001; opacity: 0; transition: 0.3s;
         }
         .guide-bubble.active { opacity: 1; transform: translateY(0); }
-        /* Flecha abajo (apuntando al toolbar) */
         .guide-bubble::after {
             content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
             border-width: 10px 10px 0 10px; border-style: solid; border-color: white transparent transparent transparent;
@@ -251,13 +224,22 @@
         .guide-bubble h3 { font-family: 'Cinzel', serif; color: var(--accent-color); border-bottom: 2px solid var(--rim-color); display: inline-block; margin-top: 0;}
         .close-guide { position: absolute; top: 10px; right: 10px; border: none; background: none; cursor: pointer; color: #999; }
 
-        /* AJUSTE: Clase para resaltar (Foco) */
         .highlight-active {
-            z-index: 6005 !important; /* Encima del overlay */
-            position: relative; 
-            background: white;
-            box-shadow: 0 0 0 4px white, 0 0 20px rgba(0,0,0,0.5); 
-            border-radius: 50%;
+            z-index: 6005 !important; position: relative; background: white;
+            box-shadow: 0 0 0 4px white, 0 0 20px rgba(0,0,0,0.5); border-radius: 50%;
+        }
+
+        /* --- PERSONAJE ESQUINA (NUEVO) --- */
+        .corner-character {
+            position: fixed;
+            bottom: -25px; /* AJUSTE: Bajada ligeramente para que no flote */
+            left: 0;
+            height: 60vmin; 
+            max-height: 675px; 
+            z-index: 4000; 
+            pointer-events: none; 
+            filter: drop-shadow(5px 5px 10px rgba(0,0,0,0.3));
+            transition: transform 0.3s;
         }
 
         #paste-toast {
@@ -272,6 +254,7 @@
         @media (max-width: 600px) {
             #mat-title { font-size: 2rem; }
             #toolbar { width: 90%; justify-content: space-around; padding: 8px; bottom: 10px; }
+            .corner-character { height: 25vmin; } /* Más pequeño en celular */
         }
     </style>
 </head>
@@ -293,7 +276,10 @@
         </div>
     </div>
 
-    <!-- GUÍAS (Fondo Desenfocado) -->
+    <!-- PERSONAJE EN ESQUINA -->
+    <img src="https://github.com/libroalbum/mooboard/blob/main/personaje%20completo.PNG?raw=true" class="corner-character" alt="Personaje">
+
+    <!-- GUÍAS -->
     <div id="guide-overlay">
         <div id="guide-bubble" class="guide-bubble">
             <button class="close-guide" onclick="nextGuide()"><i class="fas fa-times"></i></button>
@@ -302,23 +288,15 @@
         </div>
     </div>
 
-    <!-- TOAST DE PEGADO -->
+    <!-- TOAST -->
     <div id="paste-toast"><i class="fas fa-paste"></i> ¡Imagen pegada!</div>
 
-    <!-- CONTENEDOR PRINCIPAL (MARCO COMPLETO) -->
+    <!-- MARCO COMPLETO -->
     <div id="doodle-mat">
-        
-        <!-- HEADER ROJO -->
         <div id="mat-header">
             <h1 id="mat-title">MOOD BOARD</h1>
         </div>
-
-        <!-- ÁREA DE DIBUJO (BLANCA) -->
-        <div id="canvas-area" onclick="deselectAll(event)">
-            <!-- Los elementos se agregan aquí -->
-        </div>
-
-        <!-- BARRA DE HERRAMIENTAS -->
+        <div id="canvas-area" onclick="deselectAll(event)"></div>
         <div id="toolbar">
             <button id="btn-text" class="tool-btn" onclick="addText()">
                 <i class="fas fa-font"></i>
@@ -327,7 +305,6 @@
                 <i class="fas fa-image"></i>
             </button>
             <input type="file" id="file-upload" hidden accept="image/*" onchange="handleImageUpload(this)">
-            
             <button id="btn-clear" class="tool-btn" onclick="clearBoard()">
                 <i class="fas fa-trash-alt"></i>
             </button>
@@ -341,7 +318,6 @@
         const canvas = document.getElementById('canvas-area');
         let zIndexCounter = 100;
 
-        // --- SISTEMA DE GESTIÓN DE ELEMENTOS ---
         function addText() {
             const el = createBoardElement('text');
             canvas.appendChild(el);
@@ -389,8 +365,7 @@
             const div = document.createElement('div');
             div.className = 'board-item';
             div.style.zIndex = zIndexCounter++;
-            const randomRot = Math.random() * 6 - 3;
-            div.style.transform = `rotate(${randomRot}deg)`;
+            div.style.transform = `rotate(0deg)`;
 
             if (type === 'text') {
                 div.classList.add('text-item');
@@ -399,20 +374,19 @@
                 p.className = 'text-content';
                 p.innerText = "¡Idea genial!";
                 p.onmousedown = (e) => e.stopPropagation();
+                p.ontouchstart = (e) => e.stopPropagation();
                 div.appendChild(p);
                 addControls(div);
             }
 
-            // Eventos Mouse
             div.onmousedown = (e) => {
-                if (!e.target.classList.contains('resize-handle') && !e.target.classList.contains('delete-handle')) {
+                if (!e.target.classList.contains('handle-btn') && !e.target.closest('.handle-btn')) {
                     selectElement(div);
                     startDrag(e, div);
                 }
             };
-            // Eventos Touch
             div.ontouchstart = (e) => {
-                if (!e.target.classList.contains('resize-handle')) {
+                if (!e.target.classList.contains('handle-btn') && !e.target.closest('.handle-btn')) {
                     selectElement(div);
                     startDrag(e, div);
                 }
@@ -422,25 +396,33 @@
 
         function addControls(el) {
             const delBtn = document.createElement('div');
-            delBtn.className = 'delete-handle';
+            delBtn.className = 'handle-btn delete-handle';
             delBtn.innerHTML = '<i class="fas fa-times"></i>';
+            delBtn.onmousedown = (e) => e.stopPropagation();
+            delBtn.ontouchstart = (e) => e.stopPropagation();
             delBtn.onclick = (e) => { e.stopPropagation(); el.remove(); };
             el.appendChild(delBtn);
 
             const resBtn = document.createElement('div');
-            resBtn.className = 'resize-handle';
+            resBtn.className = 'handle-btn resize-handle';
+            resBtn.innerHTML = '<i class="fas fa-expand-arrows-alt"></i>';
             resBtn.onmousedown = (e) => startResize(e, el);
             resBtn.ontouchstart = (e) => startResize(e, el);
             el.appendChild(resBtn);
+
+            const rotBtn = document.createElement('div');
+            rotBtn.className = 'handle-btn rotate-handle';
+            rotBtn.innerHTML = '<i class="fas fa-sync-alt"></i>';
+            rotBtn.onmousedown = (e) => startRotate(e, el);
+            rotBtn.ontouchstart = (e) => startRotate(e, el);
+            el.appendChild(rotBtn);
         }
 
-        // --- INTERACCIÓN ---
-        let isDragging = false;
-        let isResizing = false;
-        let startX, startY, startWidth, startHeight, startLeft, startTop;
+        let isDragging = false, isResizing = false, isRotating = false;
+        let startX, startY, startWidth, startHeight, startLeft, startTop, startAngle;
 
         function startDrag(e, el) {
-            if (isResizing) return;
+            if (isResizing || isRotating) return;
             isDragging = true;
             el.style.zIndex = zIndexCounter++;
             const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
@@ -473,21 +455,24 @@
             e.stopPropagation(); isResizing = true;
             const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
             const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
-            startX = clientX; startY = clientY;
+            startX = clientX; 
             startWidth = parseInt(document.defaultView.getComputedStyle(el).width, 10);
             startHeight = parseInt(document.defaultView.getComputedStyle(el).height, 10);
+            
+            const aspectRatio = startWidth / startHeight;
 
             const moveResize = (ev) => {
                 ev.preventDefault();
                 const cx = ev.type.includes('mouse') ? ev.clientX : ev.touches[0].clientX;
-                const cy = ev.type.includes('mouse') ? ev.clientY : ev.touches[0].clientY;
-                
-                const newWidth = startWidth + (cx - startX);
-                const newHeight = startHeight + (cy - startY);
+                const deltaX = cx - startX;
+                const newWidth = startWidth + deltaX;
 
-                if (newWidth > 50) el.style.width = newWidth + 'px';
-                if (!el.classList.contains('text-item') && newHeight > 50) {
-                    el.style.height = newHeight + 'px';
+                if (newWidth > 50) {
+                    el.style.width = newWidth + 'px';
+                    if (!el.classList.contains('text-item')) {
+                        const newHeight = newWidth / aspectRatio;
+                        el.style.height = newHeight + 'px';
+                    }
                 }
             };
             const stopResize = () => {
@@ -501,6 +486,39 @@
             document.addEventListener('mouseup', stopResize);
             document.addEventListener('touchmove', moveResize, { passive: false });
             document.addEventListener('touchend', stopResize);
+        }
+
+        function startRotate(e, el) {
+            e.stopPropagation(); isRotating = true;
+            const rect = el.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+            startAngle = Math.atan2(clientY - centerY, clientX - centerX);
+            const style = window.getComputedStyle(el);
+            const matrix = new WebKitCSSMatrix(style.transform);
+            const currentRotation = Math.atan2(matrix.b, matrix.a);
+
+            const moveRotate = (ev) => {
+                ev.preventDefault();
+                const cx = ev.type.includes('mouse') ? ev.clientX : ev.touches[0].clientX;
+                const cy = ev.type.includes('mouse') ? ev.clientY : ev.touches[0].clientY;
+                const newAngle = Math.atan2(cy - centerY, cx - centerX);
+                const rotation = currentRotation + (newAngle - startAngle);
+                el.style.transform = `rotate(${rotation}rad)`;
+            };
+            const stopRotate = () => {
+                isRotating = false;
+                document.removeEventListener('mousemove', moveRotate);
+                document.removeEventListener('mouseup', stopRotate);
+                document.removeEventListener('touchmove', moveRotate);
+                document.removeEventListener('touchend', stopRotate);
+            };
+            document.addEventListener('mousemove', moveRotate);
+            document.addEventListener('mouseup', stopRotate);
+            document.addEventListener('touchmove', moveRotate, { passive: false });
+            document.addEventListener('touchend', stopRotate);
         }
 
         function selectElement(el) {
@@ -519,7 +537,6 @@
         }
         function clearBoard() { if(confirm("¿Limpiar tablero?")) canvas.innerHTML = ''; }
 
-        // --- SISTEMA DE GUÍAS ---
         let currentStep = 0;
         const guides = [
             { id: 'btn-text', title: 'Añadir Texto', text: 'Haz clic aquí para escribir tus ideas, notas o frases.' },
@@ -538,7 +555,6 @@
         }
 
         function showStep(index) {
-            // Limpiar resaltados anteriores
             document.querySelectorAll('.highlight-active').forEach(el => el.classList.remove('highlight-active'));
             document.getElementById('toolbar').classList.remove('highlight-parent');
 
@@ -550,17 +566,15 @@
             const target = document.getElementById(step.id);
             const bubble = document.getElementById('guide-bubble');
             
-            // Resaltar elemento y su padre (toolbar) para que suban en z-index
             target.classList.add('highlight-active');
             document.getElementById('toolbar').classList.add('highlight-parent');
 
             document.getElementById('guide-title').innerText = step.title;
             document.getElementById('guide-text').innerText = step.text;
             
-            // Posicionar Burbuja Encima del Botón
             const rect = target.getBoundingClientRect();
             bubble.style.bottom = (window.innerHeight - rect.top + 15) + 'px'; 
-            bubble.style.top = 'auto'; // Reset
+            bubble.style.top = 'auto'; 
             
             let left = rect.left + (rect.width/2) - (bubble.offsetWidth/2);
             if (left < 10) left = 10;
@@ -571,11 +585,12 @@
         }
         function nextGuide() { currentStep++; showStep(currentStep); }
 
-        // --- GUARDAR ---
         function saveBoard() {
             document.querySelectorAll('.board-item').forEach(i => i.classList.remove('selected'));
             const toolbar = document.getElementById('toolbar');
+            const character = document.querySelector('.corner-character');
             toolbar.style.display = 'none';
+            character.style.display = 'none'; // Ocultar personaje para la foto
 
             html2canvas(document.body, {
                 scale: 2, 
@@ -586,6 +601,7 @@
                 link.href = canvas.toDataURL();
                 link.click();
                 toolbar.style.display = 'flex';
+                character.style.display = 'block';
                 showToast("¡Imagen guardada!");
             });
         }
