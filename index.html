@@ -46,17 +46,17 @@
             
             /* Usamos flex para organizar Header - Canvas - Toolbar */
             display: flex; flex-direction: column;
-            /* AJUSTE: Padding aumentado a 30px para igualar visualmente al header */
-            padding: 30px; 
+            /* AJUSTE: Padding duplicado a 60px para bordes más anchos */
+            padding: 60px; 
             padding-top: 0; /* El header maneja la parte superior */
         }
 
         /* --- ENCABEZADO (HEADER) ROJO --- */
         #mat-header {
             background-color: var(--mat-red);
-            /* AJUSTE: Compensar el nuevo padding de 30px */
-            width: calc(100% + 60px); 
-            margin-left: -30px; 
+            /* AJUSTE: Compensar el nuevo padding de 60px */
+            width: calc(100% + 120px); 
+            margin-left: -60px; 
             height: 80px; /* Altura visual similar al nuevo borde lateral */
             display: flex; align-items: center; justify-content: center;
             border-bottom: 5px solid rgba(0,0,0,0.1);
