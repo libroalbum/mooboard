@@ -46,16 +46,18 @@
             
             /* Usamos flex para organizar Header - Canvas - Toolbar */
             display: flex; flex-direction: column;
-            padding: 15px; /* Grosor del borde de color */
+            /* AJUSTE: Padding aumentado a 30px para igualar visualmente al header */
+            padding: 30px; 
             padding-top: 0; /* El header maneja la parte superior */
         }
 
         /* --- ENCABEZADO (HEADER) ROJO --- */
         #mat-header {
             background-color: var(--mat-red);
-            width: calc(100% + 30px); /* Compensar padding padre */
-            margin-left: -15px; /* Centrar */
-            height: 80px;
+            /* AJUSTE: Compensar el nuevo padding de 30px */
+            width: calc(100% + 60px); 
+            margin-left: -30px; 
+            height: 80px; /* Altura visual similar al nuevo borde lateral */
             display: flex; align-items: center; justify-content: center;
             border-bottom: 5px solid rgba(0,0,0,0.1);
             position: relative;
@@ -98,7 +100,14 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.3);
             display: flex; gap: 15px; z-index: 5000;
             border: 3px solid var(--rim-color);
+            transition: z-index 0.3s; /* Transición suave para el z-index */
         }
+        
+        /* AJUSTE: Clase para elevar el toolbar cuando un hijo está resaltado */
+        #toolbar.highlight-parent {
+             z-index: 6002 !important;
+        }
+
 
         .tool-btn {
             background: none; border: none;
@@ -222,10 +231,12 @@
         }
         .action-btn:hover { transform: scale(1.05); background: var(--rim-color); color: #333; }
 
-        /* Guías */
+        /* Guías (Fondo desenfocado) */
         #guide-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 6000; display: none;
+            background: rgba(0,0,0,0.6); 
+            backdrop-filter: blur(4px); /* Efecto de desenfoque */
+            z-index: 6000; display: none;
         }
         .guide-bubble {
             position: absolute; background: white; padding: 20px; width: 280px;
@@ -240,9 +251,13 @@
         .guide-bubble h3 { font-family: 'Cinzel', serif; color: var(--accent-color); border-bottom: 2px solid var(--rim-color); display: inline-block; margin-top: 0;}
         .close-guide { position: absolute; top: 10px; right: 10px; border: none; background: none; cursor: pointer; color: #999; }
 
+        /* AJUSTE: Clase para resaltar (Foco) */
         .highlight-active {
-            z-index: 6005 !important; position: relative; background: white;
-            box-shadow: 0 0 0 4px white, 0 0 20px rgba(0,0,0,0.5); border-radius: 50%;
+            z-index: 6005 !important; /* Encima del overlay */
+            position: relative; 
+            background: white;
+            box-shadow: 0 0 0 4px white, 0 0 20px rgba(0,0,0,0.5); 
+            border-radius: 50%;
         }
 
         #paste-toast {
@@ -278,7 +293,7 @@
         </div>
     </div>
 
-    <!-- GUÍAS -->
+    <!-- GUÍAS (Fondo Desenfocado) -->
     <div id="guide-overlay">
         <div id="guide-bubble" class="guide-bubble">
             <button class="close-guide" onclick="nextGuide()"><i class="fas fa-times"></i></button>
@@ -523,12 +538,22 @@
         }
 
         function showStep(index) {
+            // Limpiar resaltados anteriores
             document.querySelectorAll('.highlight-active').forEach(el => el.classList.remove('highlight-active'));
-            if (index >= guides.length) { document.getElementById('guide-overlay').style.display = 'none'; return; }
+            document.getElementById('toolbar').classList.remove('highlight-parent');
+
+            if (index >= guides.length) { 
+                document.getElementById('guide-overlay').style.display = 'none'; 
+                return; 
+            }
             const step = guides[index];
             const target = document.getElementById(step.id);
             const bubble = document.getElementById('guide-bubble');
+            
+            // Resaltar elemento y su padre (toolbar) para que suban en z-index
             target.classList.add('highlight-active');
+            document.getElementById('toolbar').classList.add('highlight-parent');
+
             document.getElementById('guide-title').innerText = step.title;
             document.getElementById('guide-text').innerText = step.text;
             
