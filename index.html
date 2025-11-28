@@ -33,14 +33,30 @@
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
             font-family: 'Fredoka', sans-serif;
-            background-color: #333; 
+            
+            /* AJUSTE: Fondo oscuro con patrón para resaltar el tablero */
+            background-color: #263238; 
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            
             overflow: hidden; 
+            
+            /* AJUSTE: Flex para centrar el tablero en la pantalla */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* --- CONTENEDOR PRINCIPAL --- */
+        /* --- CONTENEDOR PRINCIPAL (EL TABLERO) --- */
         #doodle-mat {
             position: relative;
-            width: 100%; height: 100%; 
+            /* AJUSTE: Tamaño reducido para dejar márgenes */
+            width: 95%; 
+            height: 90%; 
+            max-width: 1600px; /* Límite para pantallas ultra anchas */
+            
             background-color: var(--mat-blue);
             
             /* Marco de colores perimetral */
@@ -49,9 +65,12 @@
             background-size: 100px 100%; 
             
             display: flex; flex-direction: column;
-            /* Padding grueso para el borde */
             padding: 60px; 
             padding-top: 0; 
+
+            /* AJUSTE: Sombra profunda y bordes redondeados para efecto 3D */
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            border-radius: 20px;
         }
 
         /* --- ENCABEZADO (HEADER) ROJO --- */
@@ -65,6 +84,8 @@
             position: relative;
             z-index: 10;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            /* Ajuste para seguir el borde redondeado superior */
+            border-radius: 20px 20px 0 0;
         }
 
         #mat-title {
@@ -87,7 +108,6 @@
             overflow: hidden;
             background-image: radial-gradient(#ddd 1px, transparent 1px);
             background-size: 25px 25px;
-            /* Centrar el texto de instrucción */
             display: flex;
             justify-content: center;
             align-items: flex-start;
@@ -100,7 +120,7 @@
             color: #ccc;
             font-size: 1.2rem;
             text-align: center;
-            pointer-events: none; /* Para que no estorbe */
+            pointer-events: none; 
             user-select: none;
             z-index: 0;
         }
@@ -155,7 +175,7 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.2); border-radius: 4px;
             min-width: 100px; min-height: 100px;
             border: 1px solid #eee;
-            z-index: 100; /* Asegurar que estén por encima del texto de instrucción */
+            z-index: 100; 
         }
         .board-item:active { cursor: grabbing; }
         .board-item.selected { 
@@ -165,15 +185,19 @@
         
         .board-item img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; display: block; }
         
-        .board-item.text-item { background: transparent; padding: 5px; box-shadow: none; border: none; }
+        .board-item.text-item { 
+            background: rgba(255,255,255,0.9); 
+            padding: 10px; 
+            border: 1px solid #eee;
+        }
+        
         .text-content {
             font-family: 'Permanent Marker', cursive; font-size: 1.5rem; color: #333;
-            outline: none; background: rgba(255,255,255,0.7); padding: 15px;
-            border: 2px dashed #ccc;
-            border-radius: 10px; min-width: 150px; text-align: center; cursor: text; user-select: text;
-            pointer-events: auto; /* Permitir clic para editar */
+            outline: none; background: transparent; width: 100%; height: 100%;
+            text-align: center; cursor: text; user-select: text;
+            display: flex; align-items: center; justify-content: center;
+            pointer-events: auto;
         }
-        .board-item.selected .text-content { border-color: var(--mat-blue); background: white; }
 
         /* CONTROLES DE EDICIÓN */
         .handle-btn {
@@ -185,8 +209,8 @@
 
         .board-item.selected .handle-btn { display: flex; }
 
-        .delete-handle { background: #ff5252; top: -15px; left: -15px; }
-        .resize-handle { background: var(--mat-blue); top: -15px; right: -15px; cursor: nwse-resize; }
+        .delete-handle { background: #ff5252; top: -18px; left: -18px; }
+        .resize-handle { background: var(--mat-blue); top: -18px; right: -18px; cursor: nwse-resize; }
         .rotate-handle {
             background: var(--mat-yellow); color: #333; top: -30px; left: 50%;
             transform: translateX(-50%); cursor: grab;
@@ -255,7 +279,7 @@
             height: 60vmin; 
             max-height: 675px; 
             z-index: 4000; 
-            pointer-events: none; /* Importante: permite clicks a través */
+            pointer-events: none; 
             filter: drop-shadow(5px 5px 10px rgba(0,0,0,0.3));
             transition: transform 0.3s;
         }
@@ -340,8 +364,6 @@
     <script>
         const canvas = document.getElementById('canvas-area');
         let zIndexCounter = 100;
-
-        // --- SE ELIMINÓ LA FUNCIÓN addInitialContent() PARA DEJAR EL TABLERO LIMPIO ---
 
         function addText() {
             const el = createBoardElement('text');
@@ -641,6 +663,7 @@
         function saveBoard() {
             document.querySelectorAll('.board-item').forEach(i => i.classList.remove('selected'));
             
+            // AJUSTE: Activado useCORS para que html2canvas pueda cargar imágenes externas (como el personaje)
             html2canvas(document.body, {
                 scale: 2, 
                 backgroundColor: null,
